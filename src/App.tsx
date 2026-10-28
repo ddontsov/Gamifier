@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Bulk } from './components/Bulk';
 import { ParentScreen } from './components/ParentScreen';
 import { bulk, phrase, type Mood } from './core/characters';
-import { playCorrect, playTryAgain, speak } from './core/feedback';
+import { playCorrect, playTryAgain } from './core/feedback';
 import { loadSave, newSave, storeSave } from './core/save';
 import { SESSION_LENGTH, advance, answer, isFinished, startSession, type Session } from './core/session';
 import type { Question, SaveData } from './core/types';
@@ -185,9 +185,6 @@ function QuestionCard({ question, input, feedback }: { question: Question; input
     <div className={`question feedback-${feedback}`}>
       <span className="prompt">{question.prompt} =</span>
       <span className="answer">{shown}</span>
-      <button className="speak" onClick={() => speak(question.speech)} aria-label="Прочитать вслух">
-        🔊
-      </button>
     </div>
   );
 }

@@ -47,7 +47,6 @@ export const multiplication: TopicModule = {
       itemId,
       kind: 'number-input',
       prompt: `${a} × ${b}`,
-      speech: `${a} умножить на ${b}`,
       answer: String(a * b),
     };
   },

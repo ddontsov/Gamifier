@@ -14,6 +14,9 @@
   background: var(--bg);
   -webkit-tap-highlight-color: transparent;
   user-select: none;
+  /* Крупный системный шрифт на Android не должен ломать раскладку игры. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 * {
@@ -198,6 +201,7 @@ button {
 }
 
 .panel {
+  container-type: inline-size;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -227,11 +231,13 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 0.2em;
   background: var(--card);
   border-radius: var(--radius);
-  padding: 20px;
-  font-size: 64px;
+  padding: 20px 12px;
+  /* Пример всегда в одну строку: шрифт уменьшается вместе с карточкой. */
+  font-size: clamp(32px, 13cqi, 64px);
+  white-space: nowrap;
   font-weight: 800;
   box-shadow: 0 6px 0 rgba(0, 0, 0, 0.06);
   border: 4px solid transparent;
@@ -239,7 +245,7 @@ button {
 }
 
 .question .answer {
-  min-width: 1.6em;
+  min-width: 1.3em;
   text-align: center;
   color: var(--accent);
 }
@@ -268,13 +274,6 @@ button {
   75% {
     transform: translateX(8px);
   }
-}
-
-.speak {
-  border: none;
-  background: transparent;
-  font-size: 32px;
-  padding: 4px;
 }
 
 /* Цифровая клавиатура */
