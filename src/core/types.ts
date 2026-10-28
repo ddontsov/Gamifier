@@ -8,8 +8,6 @@ export interface Question {
   kind: ExerciseKind;
   /** Текст вопроса на экране, например «7 × 8». */
   prompt: string;
-  /** Текст для озвучки, например «7 умножить на 8». */
-  speech: string;
   answer: string;
 }
 

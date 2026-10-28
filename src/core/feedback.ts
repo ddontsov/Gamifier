@@ -32,14 +32,3 @@ export function playTryAgain() {
     // Без звука игра тоже работает.
   }
 }
-
-/** Читает вопрос вслух русским голосом планшета, если он есть. */
-export function speak(text: string) {
-  if (!('speechSynthesis' in window)) return;
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = 'ru-RU';
-  const voice = speechSynthesis.getVoices().find((v) => v.lang.startsWith('ru'));
-  if (voice) utterance.voice = voice;
-  speechSynthesis.cancel();
-  speechSynthesis.speak(utterance);
-}
