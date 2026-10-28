@@ -1,7 +1,7 @@
 import type { SaveData, WorldItem, WorldLocation } from './types';
 
 /** Монетки за сундучок, когда коллекция локации уже собрана. */
-export const COLLECTION_DONE_COINS = 5;
+export const COLLECTION_DONE_COINS = 2;
 
 export type LockState = 'open' | 'can-unlock' | 'need-coins' | 'need-previous';
 
