@@ -46,6 +46,7 @@ button {
   min-height: 100%;
   display: flex;
   flex-direction: column;
+  background: linear-gradient(160deg, var(--bg) 0%, var(--bg-2) 100%);
   padding: max(16px, env(safe-area-inset-top)) 20px 20px;
 }
 
@@ -147,18 +148,18 @@ button {
   border-top-color: var(--card);
 }
 
-.bulk {
+.slime {
   width: min(260px, 40vw);
   height: auto;
   animation: idle 2.4s ease-in-out infinite;
   transform-origin: 50% 100%;
 }
 
-.bulk-happy {
+.slime-happy {
   animation: jump 0.6s ease-out 2;
 }
 
-.bulk-think {
+.slime-think {
   animation: wobble 1.2s ease-in-out infinite;
 }
 
@@ -445,4 +446,203 @@ button {
 .legend span {
   padding: 4px 10px;
   border-radius: 8px;
+}
+
+/* Награды: цель, сундучок, приз */
+.place-badge {
+  font-size: 20px;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 6px 16px;
+  border-radius: 999px;
+}
+
+.goal {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--muted);
+  margin: 0;
+}
+
+.goal-ready {
+  color: var(--accent-dark);
+}
+
+.chest {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: transparent;
+  font-size: 24px;
+  font-weight: 800;
+  animation: wobble 1.2s ease-in-out infinite;
+}
+
+.chest-icon {
+  font-size: 96px;
+  line-height: 1;
+}
+
+.prize {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 26px;
+  font-weight: 800;
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px 32px;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.06);
+  animation: pop 0.5s ease-out;
+}
+
+.prize-icon {
+  font-size: 88px;
+  line-height: 1.1;
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.btn-gold {
+  background: #ffc531;
+  color: var(--ink);
+  box-shadow: 0 5px 0 #d99a00;
+}
+
+/* Карта мира */
+.world {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: 12px;
+}
+
+.world-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.world-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.place {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  border-radius: var(--radius);
+  text-align: center;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.08);
+  border: 4px solid transparent;
+}
+
+.place-current {
+  border-color: var(--accent);
+}
+
+.place-need-coins,
+.place-need-previous {
+  filter: saturate(0.4);
+}
+
+.place-can-unlock {
+  border-color: #ffc531;
+  animation: nudge 1.6s ease-in-out infinite;
+}
+
+.btn-gold .coin {
+  color: #fff6d6;
+  text-shadow: 0 0 2px #b07a00;
+}
+
+@keyframes nudge {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(-1.5deg);
+  }
+  75% {
+    transform: rotate(1.5deg);
+  }
+}
+
+.place .btn {
+  font-size: 18px;
+  padding: 12px 18px;
+  white-space: nowrap;
+}
+
+.place-icon {
+  font-size: 64px;
+  line-height: 1.1;
+}
+
+.place-name {
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.place-friend,
+.place-hint {
+  font-size: 15px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.place-items {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+  font-size: 22px;
+}
+
+.place-items span {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.place-items .missing {
+  color: #b9b1cc;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.place-here {
+  font-weight: 800;
+  color: var(--accent-dark);
+  padding: 10px;
+}
+
+.place-price {
+  font-size: 20px;
+  font-weight: 800;
 }

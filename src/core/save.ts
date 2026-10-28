@@ -1,10 +1,19 @@
 import { get, set } from 'idb-keyval';
+import { FIRST_LOCATION, locations } from '../world/locations';
 import type { ItemProgress, SaveData } from './types';
 
 const STORAGE_KEY = 'gamifier-save';
 
 export function newSave(): SaveData {
-  return { version: 1, coins: 0, sessions: 0, progress: {} };
+  return {
+    version: 2,
+    coins: 0,
+    sessions: 0,
+    progress: {},
+    location: FIRST_LOCATION,
+    unlocked: [FIRST_LOCATION],
+    items: [],
+  };
 }
 
 function isProgress(v: unknown): v is ItemProgress {
@@ -20,15 +29,23 @@ function isProgress(v: unknown): v is ItemProgress {
   );
 }
 
+function knownIds(value: unknown, known: Set<string>): string[] {
+  if (!Array.isArray(value)) return [];
+  return [...new Set(value.filter((v): v is string => typeof v === 'string' && known.has(v)))];
+}
+
+const locationIds = new Set(locations.map((l) => l.id));
+const itemIds = new Set(locations.flatMap((l) => l.items.map((i) => i.id)));
+
 /**
  * Разбирает сохранение из JSON (файл экспорта или IndexedDB).
- * Бросает ошибку, если это не наше сохранение.
+ * Старые версии переводятся в текущую. Бросает ошибку, если это не наше сохранение.
  */
 export function parseSave(json: string): SaveData {
   const raw: unknown = JSON.parse(json);
-  if (typeof raw !== 'object' || raw === null) throw new Error('Это не файл сохранения');
+  if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) throw new Error('Это не файл сохранения');
   const s = raw as Record<string, unknown>;
-  if (s.version !== 1) throw new Error('Неизвестная версия сохранения');
+  if (s.version !== 1 && s.version !== 2) throw new Error('Неизвестная версия сохранения');
   if (typeof s.coins !== 'number' || typeof s.sessions !== 'number') {
     throw new Error('Повреждённый файл сохранения');
   }
@@ -38,7 +55,20 @@ export function parseSave(json: string): SaveData {
       if (isProgress(value)) progress[key] = value;
     }
   }
-  return { version: 1, coins: s.coins, sessions: s.sessions, progress };
+  // В версии 1 ещё не было карты мира: всё начинается с первой локации.
+  const unlocked = knownIds(s.unlocked, locationIds);
+  if (!unlocked.includes(FIRST_LOCATION)) unlocked.unshift(FIRST_LOCATION);
+  const location = typeof s.location === 'string' && unlocked.includes(s.location) ? s.location : FIRST_LOCATION;
+
+  return {
+    version: 2,
+    coins: s.coins,
+    sessions: s.sessions,
+    progress,
+    location,
+    unlocked,
+    items: knownIds(s.items, itemIds),
+  };
 }
 
 export function serializeSave(save: SaveData): string {
