@@ -37,9 +37,33 @@ export interface ItemProgress {
 }
 
 export interface SaveData {
-  version: 1;
+  version: 2;
   coins: number;
   sessions: number;
   /** Ключ — `${topicId}:${itemId}`. */
   progress: Record<string, ItemProgress>;
+  /** Локация, в которой Катя сейчас играет. */
+  location: string;
+  /** Открытые локации. */
+  unlocked: string[];
+  /** Собранные предметы из сундучков. */
+  items: string[];
+}
+
+export interface WorldItem {
+  id: string;
+  name: string;
+  icon: string;
+}
+
+export interface WorldLocation {
+  id: string;
+  name: string;
+  icon: string;
+  /** Сколько монет стоит открыть локацию. */
+  price: number;
+  characterId: string;
+  /** Два цвета фонового градиента. */
+  background: [string, string];
+  items: WorldItem[];
 }

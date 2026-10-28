@@ -32,3 +32,14 @@ export function playTryAgain() {
     // Без звука игра тоже работает.
   }
 }
+
+export function playChest() {
+  try {
+    tone(523, 0, 0.15);
+    tone(659, 0.1, 0.15);
+    tone(784, 0.2, 0.15);
+    tone(1047, 0.3, 0.35);
+  } catch {
+    // Без звука игра тоже работает.
+  }
+}
