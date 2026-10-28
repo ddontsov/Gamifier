@@ -1,7 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { multiplication } from '../topics/multiplication';
 import { newSave } from './save';
-import { COINS_CORRECT, COINS_WRONG, SESSION_LENGTH, advance, answer, isFinished, startSession } from './session';
+import {
+  COINS_CORRECT,
+  COINS_WRONG,
+  SESSION_LENGTH,
+  STREAK_BONUS,
+  advance,
+  answer,
+  isFinished,
+  startSession,
+} from './session';
 
 const first = () => 0;
 
@@ -32,10 +41,10 @@ describe('session', () => {
   });
 
   it('never lets the balance go below zero', () => {
-    const save = { ...newSave(), coins: 3 };
+    const save = { ...newSave(), coins: COINS_WRONG - 1 };
     const s = startSession(multiplication, save, first);
     const r1 = answer(s, save, '0');
-    expect(r1.coins).toBe(-3);
+    expect(r1.coins).toBe(-(COINS_WRONG - 1));
     expect(r1.save.coins).toBe(0);
     const r2 = answer(r1.session, r1.save, '0');
     expect(r2.coins).toBe(0);
@@ -80,7 +89,7 @@ describe('session', () => {
       if (!isFinished(s)) s = advance(s, save, first);
     }
     expect(bonuses).toBe(2);
-    expect(save.coins).toBe(SESSION_LENGTH * COINS_CORRECT + 2 * 3);
+    expect(save.coins).toBe(SESSION_LENGTH * COINS_CORRECT + 2 * STREAK_BONUS);
     expect(s.coinsEarned).toBe(save.coins);
   });
 });

@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import { multiplication } from '../topics/multiplication';
 import { locationById, locations } from '../world/locations';
 import { COLLECTION_DONE_COINS, lockState, openChest, unlockLocation } from './rewards';
 import { newSave } from './save';
+import { advance, answer, isFinished, startSession } from './session';
 
 const town = locationById('town');
 const park = locationById('slime-park');
@@ -58,5 +60,30 @@ describe('chest', () => {
     const result = openChest(save, circus);
     expect(result.item).toBeNull();
     expect(result.save.coins).toBe(3 + COLLECTION_DONE_COINS);
+  });
+});
+
+describe('economy', () => {
+  // Правило Dmitry: чтобы открыть весь мир, таблицу нужно пройти целиком не меньше 10 раз.
+  const MIN_PASSES = 10;
+
+  it('needs at least ten flawless passes of the table to open every location', () => {
+    const total = locations.reduce((sum, l) => sum + l.price, 0);
+    const circus = locations[0];
+    // Самый быстрый путь: ни одной ошибки, и сундучок каждый раз платит монетками.
+    let save = { ...newSave(), items: circus.items.map((i) => i.id) };
+    let answers = 0;
+    while (save.coins < total) {
+      let s = startSession(multiplication, save);
+      for (;;) {
+        const r = answer(s, save, s.question.answer);
+        answers++;
+        save = r.save;
+        if (save.coins >= total || isFinished(r.session)) break;
+        s = advance(r.session, save);
+      }
+      if (save.coins < total) save = openChest(save, circus).save;
+    }
+    expect(answers).toBeGreaterThanOrEqual(MIN_PASSES * multiplication.items().length);
   });
 });

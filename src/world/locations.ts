@@ -3,6 +3,8 @@ import type { WorldLocation } from '../core/types';
 /**
  * Карта мира. Локации открываются по очереди за монетки. В каждой свой фон,
  * свой персонаж и своя коллекция предметов из сундучков.
+ * Цены подобраны так, чтобы на весь мир даже без ошибок понадобилось
+ * не меньше 10 полных проходов таблицы (см. тест экономики в rewards.test.ts).
  */
 export const locations: WorldLocation[] = [
   {
@@ -25,7 +27,7 @@ export const locations: WorldLocation[] = [
     id: 'town',
     name: 'Городок',
     icon: '🏘️',
-    price: 40,
+    price: 100,
     characterId: 'knopka',
     background: ['#fff4e0', '#ffe0ec'],
     items: [
@@ -41,7 +43,7 @@ export const locations: WorldLocation[] = [
     id: 'slime-park',
     name: 'Парк слаймов',
     icon: '🫧',
-    price: 80,
+    price: 200,
     characterId: 'zhele',
     background: ['#e8fff0', '#efe6ff'],
     items: [
@@ -57,7 +59,7 @@ export const locations: WorldLocation[] = [
     id: 'school',
     name: 'Школа',
     icon: '🏫',
-    price: 130,
+    price: 300,
     characterId: 'klyaksa',
     background: ['#e6f4ff', '#f1f8e9'],
     items: [
@@ -73,7 +75,7 @@ export const locations: WorldLocation[] = [
     id: 'space',
     name: 'Космос',
     icon: '🚀',
-    price: 200,
+    price: 400,
     characterId: 'zvezdochka',
     background: ['#e3e0ff', '#ffe9d6'],
     items: [

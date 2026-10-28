@@ -5,11 +5,12 @@ export const SESSION_LENGTH = 10;
 /** Через сколько вопросов вернуть пример, в котором была ошибка. */
 const RETRY_AFTER = 3;
 const STREAK_BONUS_EVERY = 5;
-const STREAK_BONUS = 3;
+/** Бонус за каждые 5 верных ответов подряд. */
+export const STREAK_BONUS = 1;
 /** Монетки за каждый правильный ответ. */
-export const COINS_CORRECT = 2;
+export const COINS_CORRECT = 1;
 /** Сколько монет отнимает каждая неправильная попытка. Баланс не уходит ниже нуля. */
-export const COINS_WRONG = 4;
+export const COINS_WRONG = 2;
 
 export type Outcome = 'correct' | 'try-again' | 'reveal';
 
