@@ -30,6 +30,8 @@ export default function App() {
   const [speech, setSpeech] = useState('');
   const [mood, setMood] = useState<Mood>('idle');
   const [chest, setChest] = useState<Chest>({ state: 'closed' });
+  // Всплывающее «+2» или «−4» у счётчика монет; id перезапускает анимацию.
+  const [coinDelta, setCoinDelta] = useState<{ id: number; value: number } | null>(null);
   const holdTimer = useRef<number | undefined>(undefined);
 
   const location = locationById(save.location);
@@ -91,6 +93,7 @@ export default function App() {
     const result = answer(session, save, input);
     setSession(result.session);
     setSave(result.save);
+    if (result.coins !== 0) setCoinDelta((d) => ({ id: (d?.id ?? 0) + 1, value: result.coins }));
 
     if (result.outcome === 'correct') {
       playCorrect();
@@ -139,6 +142,11 @@ export default function App() {
       <header className="topbar">
         <div className="coins" aria-label="Монетки">
           <span className="coin">●</span> {save.coins}
+          {coinDelta && (
+            <span key={coinDelta.id} className={coinDelta.value > 0 ? 'coin-delta plus' : 'coin-delta minus'}>
+              {signed(coinDelta.value)}
+            </span>
+          )}
         </div>
         {screen === 'play' && session && (
           <div className="dots" aria-label={`Вопрос ${session.index + 1} из ${SESSION_LENGTH}`}>
@@ -210,7 +218,7 @@ export default function App() {
                 С первой попытки: {session.firstTryCorrect} из {SESSION_LENGTH}
               </p>
               <p className="result">
-                Монеток за игру: <strong>+{session.coinsEarned}</strong>
+                Монеток за игру: <strong>{signed(session.coinsEarned)}</strong>
               </p>
               {chest.state === 'closed' ? (
                 <button className="chest" onClick={open} aria-label="Открыть сундучок">
@@ -240,6 +248,10 @@ export default function App() {
       )}
     </div>
   );
+}
+
+function signed(n: number): string {
+  return n > 0 ? `+${n}` : n < 0 ? `−${-n}` : '0';
 }
 
 /** Подсказка, зачем копить монетки: сколько осталось до следующей локации. */

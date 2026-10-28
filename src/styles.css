@@ -65,6 +65,42 @@ button {
   padding: 6px 18px;
   border-radius: 999px;
   box-shadow: 0 4px 0 rgba(0, 0, 0, 0.08);
+  position: relative;
+}
+
+.coin-delta {
+  position: absolute;
+  left: 100%;
+  top: 4px;
+  margin-left: 8px;
+  font-size: 26px;
+  font-weight: 800;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: float-away 1.2s ease-out forwards;
+}
+
+.coin-delta.plus {
+  color: var(--good);
+}
+
+.coin-delta.minus {
+  color: #e5484d;
+}
+
+@keyframes float-away {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.8);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(0) scale(1.15);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-24px) scale(1);
+  }
 }
 
 .coin {

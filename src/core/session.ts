@@ -6,6 +6,10 @@ export const SESSION_LENGTH = 10;
 const RETRY_AFTER = 3;
 const STREAK_BONUS_EVERY = 5;
 const STREAK_BONUS = 3;
+/** Монетки за каждый правильный ответ. */
+export const COINS_CORRECT = 2;
+/** Сколько монет отнимает каждая неправильная попытка. Баланс не уходит ниже нуля. */
+export const COINS_WRONG = 4;
 
 export type Outcome = 'correct' | 'try-again' | 'reveal';
 
@@ -16,6 +20,7 @@ export interface Session {
   question: Question;
   attempt: 1 | 2;
   streak: number;
+  /** Сколько монет прибавилось или убавилось за игру. */
   coinsEarned: number;
   firstTryCorrect: number;
   recent: string[];
@@ -65,38 +70,43 @@ export function startSession(
  * Обрабатывает ответ. Первая ошибка даёт вторую попытку с подсказкой,
  * вторая показывает правильный ответ. Прогресс обновляется один раз
  * на вопрос: по тому, верно ли ответили с первой попытки.
+ * Каждый правильный ответ приносит монетки, каждая ошибка их отнимает;
+ * `coins` в результате — на сколько изменился баланс.
  */
 export function answer(
   session: Session,
   save: SaveData,
   given: string,
   now: number = Date.now(),
-): { session: Session; save: SaveData; outcome: Outcome; bonus: boolean } {
+): { session: Session; save: SaveData; outcome: Outcome; bonus: boolean; coins: number } {
   const { topic, question } = session;
   const correct = topic.check(question, given);
 
-  if (!correct && session.attempt === 1) {
+  if (!correct) {
+    const lost = Math.min(COINS_WRONG, save.coins);
+    const firstMiss = session.attempt === 1;
+    const recorded = firstMiss ? recordAnswer(save, question, false, now) : save;
     return {
       session: {
         ...session,
         attempt: 2,
         streak: 0,
-        retry: [...session.retry, { itemId: question.itemId, due: session.index + RETRY_AFTER }],
+        coinsEarned: session.coinsEarned - lost,
+        retry: firstMiss
+          ? [...session.retry, { itemId: question.itemId, due: session.index + RETRY_AFTER }]
+          : session.retry,
       },
-      save: recordAnswer(save, question, false, now),
-      outcome: 'try-again',
+      save: { ...recorded, coins: recorded.coins - lost },
+      outcome: firstMiss ? 'try-again' : 'reveal',
       bonus: false,
+      coins: lost > 0 ? -lost : 0,
     };
-  }
-
-  if (!correct) {
-    return { session, save, outcome: 'reveal', bonus: false };
   }
 
   const firstTry = session.attempt === 1;
   const streak = firstTry ? session.streak + 1 : 0;
   const bonus = firstTry && streak % STREAK_BONUS_EVERY === 0;
-  const coins = (firstTry ? 1 : 0) + (bonus ? STREAK_BONUS : 0);
+  const coins = COINS_CORRECT + (bonus ? STREAK_BONUS : 0);
   const nextSave = firstTry ? recordAnswer(save, question, true, now) : save;
 
   return {
@@ -109,6 +119,7 @@ export function answer(
     save: { ...nextSave, coins: nextSave.coins + coins },
     outcome: 'correct',
     bonus,
+    coins,
   };
 }
 
