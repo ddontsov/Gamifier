@@ -5,9 +5,14 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 // GitHub Pages отдаёт сайт по адресу https://<user>.github.io/<repo>/.
 const base = process.env.BASE_PATH ?? '/';
+// Номер сборки для экрана родителя: коммит из GitHub Actions и дата.
+const build = `${(process.env.GITHUB_SHA ?? 'local').slice(0, 7)} от ${new Date().toISOString().slice(0, 10)}`;
 
 export default defineConfig({
   base,
+  define: {
+    __APP_BUILD__: JSON.stringify(build),
+  },
   plugins: [
     react(),
     VitePWA({

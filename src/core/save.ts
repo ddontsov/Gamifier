@@ -6,13 +6,14 @@ const STORAGE_KEY = 'gamifier-save';
 
 export function newSave(): SaveData {
   return {
-    version: 2,
+    version: 3,
     coins: 0,
     sessions: 0,
     progress: {},
     location: FIRST_LOCATION,
     unlocked: [FIRST_LOCATION],
     items: [],
+    bosses: [],
   };
 }
 
@@ -36,6 +37,7 @@ function knownIds(value: unknown, known: Set<string>): string[] {
 
 const locationIds = new Set(locations.map((l) => l.id));
 const itemIds = new Set(locations.flatMap((l) => l.items.map((i) => i.id)));
+const bossIds = new Set(locations.flatMap((l) => l.bosses.map((b) => b.id)));
 
 /**
  * Разбирает сохранение из JSON (файл экспорта или IndexedDB).
@@ -45,7 +47,7 @@ export function parseSave(json: string): SaveData {
   const raw: unknown = JSON.parse(json);
   if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) throw new Error('Это не файл сохранения');
   const s = raw as Record<string, unknown>;
-  if (s.version !== 1 && s.version !== 2) throw new Error('Неизвестная версия сохранения');
+  if (s.version !== 1 && s.version !== 2 && s.version !== 3) throw new Error('Неизвестная версия сохранения');
   if (typeof s.coins !== 'number' || typeof s.sessions !== 'number') {
     throw new Error('Повреждённый файл сохранения');
   }
@@ -55,19 +57,20 @@ export function parseSave(json: string): SaveData {
       if (isProgress(value)) progress[key] = value;
     }
   }
-  // В версии 1 ещё не было карты мира: всё начинается с первой локации.
+  // В версии 1 ещё не было карты мира, в версии 2 — боссов: недостающее начинается с нуля.
   const unlocked = knownIds(s.unlocked, locationIds);
   if (!unlocked.includes(FIRST_LOCATION)) unlocked.unshift(FIRST_LOCATION);
   const location = typeof s.location === 'string' && unlocked.includes(s.location) ? s.location : FIRST_LOCATION;
 
   return {
-    version: 2,
+    version: 3,
     coins: s.coins,
     sessions: s.sessions,
     progress,
     location,
     unlocked,
     items: knownIds(s.items, itemIds),
+    bosses: knownIds(s.bosses, bossIds),
   };
 }
 

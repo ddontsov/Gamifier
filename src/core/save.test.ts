@@ -11,6 +11,7 @@ describe('save file', () => {
       location: 'town',
       unlocked: ['circus', 'town'],
       items: ['circus-popcorn', 'town-cat'],
+      bosses: ['boss-x2'],
     };
     expect(parseSave(serializeSave(save))).toEqual(save);
   });
@@ -23,19 +24,33 @@ describe('save file', () => {
       progress: { 'multiplication:2x2': { box: 2, seen: 1, correct: 1, lastSeen: 0 } },
     });
     expect(parseSave(v1)).toEqual({
-      version: 2,
+      version: 3,
       coins: 30,
       sessions: 4,
       progress: { 'multiplication:2x2': { box: 2, seen: 1, correct: 1, lastSeen: 0 } },
       location: 'circus',
       unlocked: ['circus'],
       items: [],
+      bosses: [],
     });
+  });
+
+  it('upgrades a version 2 save from before the bosses', () => {
+    const v2 = JSON.stringify({
+      version: 2,
+      coins: 120,
+      sessions: 9,
+      progress: {},
+      location: 'town',
+      unlocked: ['circus', 'town'],
+      items: ['town-cat'],
+    });
+    expect(parseSave(v2)).toMatchObject({ version: 3, coins: 120, location: 'town', items: ['town-cat'], bosses: [] });
   });
 
   it('rejects files that are not saves', () => {
     expect(() => parseSave('[]')).toThrow();
-    expect(() => parseSave('{"version":3,"coins":0,"sessions":0}')).toThrow('версия');
+    expect(() => parseSave('{"version":4,"coins":0,"sessions":0}')).toThrow('версия');
     expect(() => parseSave('not json')).toThrow();
   });
 
@@ -48,11 +63,13 @@ describe('save file', () => {
       location: 'atlantis',
       unlocked: ['town', 'atlantis', 'town'],
       items: ['town-cat', 'unicorn', 7],
+      bosses: ['boss-x2', 'boss-x42'],
     });
     const save = parseSave(json);
     expect(Object.keys(save.progress)).toEqual(['good']);
     expect(save.unlocked).toEqual(['circus', 'town']);
     expect(save.location).toBe('circus');
     expect(save.items).toEqual(['town-cat']);
+    expect(save.bosses).toEqual(['boss-x2']);
   });
 });

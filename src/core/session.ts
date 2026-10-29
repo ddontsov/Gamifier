@@ -124,7 +124,8 @@ export function answer(
   };
 }
 
-function recordAnswer(save: SaveData, question: Question, firstTryCorrect: boolean, now: number): SaveData {
+/** Записывает в прогресс Лейтнера, решён ли пример с первой попытки. */
+export function recordAnswer(save: SaveData, question: Question, firstTryCorrect: boolean, now: number): SaveData {
   const key = progressKey(question.topicId, question.itemId);
   const current = save.progress[key] ?? emptyProgress();
   return {

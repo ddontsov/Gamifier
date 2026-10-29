@@ -682,3 +682,234 @@ button {
   font-size: 20px;
   font-weight: 800;
 }
+
+/* Боссы */
+.lives {
+  display: flex;
+  gap: 6px;
+  font-size: 26px;
+}
+
+.life.lost {
+  filter: grayscale(1);
+  opacity: 0.3;
+}
+
+.boss-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.boss-icon {
+  font-size: min(140px, 22vw);
+  line-height: 1;
+  animation: boss-idle 2s ease-in-out infinite;
+}
+
+.boss-hit {
+  animation:
+    boss-hit 0.5s ease-out,
+    boss-idle 2s ease-in-out 0.5s infinite;
+}
+
+@keyframes boss-idle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes boss-hit {
+  0% {
+    transform: scale(1);
+    filter: none;
+  }
+  20% {
+    transform: scale(0.85) rotate(-10deg);
+    filter: brightness(1.8) saturate(0.4);
+  }
+  50% {
+    transform: scale(1.05) rotate(8deg);
+  }
+  100% {
+    transform: scale(1);
+    filter: none;
+  }
+}
+
+.boss-name {
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.boss-hp {
+  display: flex;
+  gap: 4px;
+}
+
+.boss-hp span {
+  width: 22px;
+  height: 14px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.12);
+  transition: background 0.3s;
+}
+
+.boss-hp .full {
+  background: #e5484d;
+}
+
+.boss-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.boss-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: none;
+  border-radius: 18px;
+  padding: 8px 18px;
+  background: var(--ink);
+  color: #fff;
+  box-shadow: 0 5px 0 #000;
+  text-align: left;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.boss-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 #000;
+}
+
+.boss-btn.beaten {
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.12);
+}
+
+.boss-btn-icon {
+  font-size: 40px;
+  line-height: 1;
+}
+
+.boss-btn-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.boss-btn-text small {
+  font-size: 15px;
+  font-weight: 700;
+  opacity: 0.75;
+}
+
+.column-table {
+  display: grid;
+  grid-template-rows: repeat(4, auto);
+  grid-auto-flow: column;
+  gap: 6px 28px;
+  font-size: 22px;
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px 24px;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.06);
+}
+
+.place-bosses {
+  display: flex;
+  gap: 8px;
+  font-size: 22px;
+}
+
+.place-bosses span {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.place-bosses .missing {
+  filter: grayscale(1);
+  opacity: 0.6;
+}
+
+/* Праздник: новая локация, победа над боссом */
+.confetti {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.confetti span {
+  position: absolute;
+  top: -24px;
+  width: 10px;
+  height: 16px;
+  border-radius: 3px;
+  animation-name: fall;
+  animation-timing-function: linear;
+  animation-iteration-count: 2;
+  animation-fill-mode: both;
+}
+
+@keyframes fall {
+  from {
+    transform: translateY(0) rotate(var(--turn));
+  }
+  to {
+    transform: translateY(110vh) rotate(calc(var(--turn) + 540deg));
+  }
+}
+
+.celebrate {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow: auto;
+}
+
+.celebrate-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  animation: pop 0.5s ease-out;
+}
+
+.celebrate-label {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--accent-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.celebrate-icon {
+  font-size: 96px;
+  line-height: 1;
+}
+
+.celebrate .slime {
+  width: min(170px, 30vw);
+}
+
+.version {
+  font-size: 14px;
+}
