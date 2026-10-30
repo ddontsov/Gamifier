@@ -43,6 +43,21 @@ export function WorldMap({ save, onChange, onClose }: Props) {
                       </span>
                     ))}
                   </div>
+                  <div className="place-bosses">
+                    {location.bosses.map((boss) => {
+                      const beaten = save.bosses.includes(boss.id);
+                      return (
+                        <span
+                          key={boss.id}
+                          className={beaten ? 'got' : 'missing'}
+                          title={`${boss.name}: ${beaten ? 'побеждён' : 'ещё не побеждён'}`}
+                        >
+                          {beaten ? '🏆' : '⚔️'}
+                          {boss.icon}
+                        </span>
+                      );
+                    })}
+                  </div>
                   {current ? (
                     <div className="place-here">Ты здесь</div>
                   ) : (

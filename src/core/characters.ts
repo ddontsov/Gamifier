@@ -96,6 +96,22 @@ export const characters: Character[] = [
   },
 ];
 
+export type BossMoment = 'start' | 'hit' | 'miss' | 'won' | 'lost';
+
+/** Реплики боссов. Общие для всех: босса узнают по имени и значку. */
+const bossPhrases: Record<BossMoment, string[]> = {
+  start: ['Ха! Мой столбик тебе не по зубам!', 'Посмотрим, кто кого!', 'Решишь весь мой столбик? Сомневаюсь!'],
+  hit: ['Ай!', 'Ой-ой!', 'Не может быть!', 'Это случайность!', 'Ну погоди!'],
+  miss: ['Ха-ха, мимо! Запомни ответ.', 'Промах! Вот правильный ответ.', 'Моя взяла! Смотри, сколько было.'],
+  won: ['Ладно, ты победила. Трофей твой!', 'Я повержен! Держи трофей.'],
+  lost: ['В этот раз победа за мной! Повтори столбик и возвращайся.'],
+};
+
+export function bossPhrase(moment: BossMoment, random: () => number = Math.random): string {
+  const list = bossPhrases[moment];
+  return list[Math.floor(random() * list.length)];
+}
+
 export function characterById(id: string): Character {
   return characters.find((c) => c.id === id) ?? characters[0];
 }

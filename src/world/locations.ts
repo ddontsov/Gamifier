@@ -5,6 +5,7 @@ import type { WorldLocation } from '../core/types';
  * свой персонаж и своя коллекция предметов из сундучков.
  * Цены подобраны так, чтобы на весь мир даже без ошибок понадобилось
  * не меньше 10 полных проходов таблицы (см. тест экономики в rewards.test.ts).
+ * Боссы охраняют столбики таблицы: лёгкие в первых локациях, трудные в последних.
  */
 export const locations: WorldLocation[] = [
   {
@@ -22,6 +23,10 @@ export const locations: WorldLocation[] = [
       { id: 'circus-juggler', name: 'Жонглёр', icon: '🤹' },
       { id: 'circus-ticket', name: 'Билет в цирк', icon: '🎟️' },
     ],
+    bosses: [
+      { id: 'boss-x2', name: 'Клоун Двоечник', icon: '🤡', group: 'x2' },
+      { id: 'boss-x3', name: 'Трёхглавый Дракон', icon: '🐉', group: 'x3' },
+    ],
   },
   {
     id: 'town',
@@ -37,6 +42,10 @@ export const locations: WorldLocation[] = [
       { id: 'town-cat', name: 'Котик', icon: '🐱' },
       { id: 'town-tulip', name: 'Тюльпан', icon: '🌷' },
       { id: 'town-slide', name: 'Горка', icon: '🛝' },
+    ],
+    bosses: [
+      { id: 'boss-x4', name: 'Робот Четвёрка', icon: '🤖', group: 'x4' },
+      { id: 'boss-x5', name: 'Пятнистый Леопард', icon: '🐆', group: 'x5' },
     ],
   },
   {
@@ -54,6 +63,9 @@ export const locations: WorldLocation[] = [
       { id: 'park-kite', name: 'Воздушный змей', icon: '🪁' },
       { id: 'park-bubbles', name: 'Мыльные пузыри', icon: '🫧' },
     ],
+    bosses: [
+      { id: 'boss-x6', name: 'Шестилапый Жук', icon: '🪲', group: 'x6' },
+    ],
   },
   {
     id: 'school',
@@ -70,6 +82,10 @@ export const locations: WorldLocation[] = [
       { id: 'school-microscope', name: 'Микроскоп', icon: '🔬' },
       { id: 'school-trophy', name: 'Кубок', icon: '🏆' },
     ],
+    bosses: [
+      { id: 'boss-x7', name: 'Контрольная Семёрка', icon: '📝', group: 'x7' },
+      { id: 'boss-x8', name: 'Осьминог Восьмёрка', icon: '🐙', group: 'x8' },
+    ],
   },
   {
     id: 'space',
@@ -85,6 +101,9 @@ export const locations: WorldLocation[] = [
       { id: 'space-ufo', name: 'Летающая тарелка', icon: '🛸' },
       { id: 'space-moon', name: 'Луна', icon: '🌙' },
       { id: 'space-alien', name: 'Инопланетянин', icon: '👽' },
+    ],
+    bosses: [
+      { id: 'boss-x9', name: 'Девятиглазый Пришелец', icon: '👾', group: 'x9' },
     ],
   },
 ];

@@ -1,18 +1,22 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { BossView } from './components/BossView';
+import { Celebration } from './components/Celebration';
+import { Confetti } from './components/Confetti';
 import { ParentScreen } from './components/ParentScreen';
 import { Slime } from './components/Slime';
 import { WorldMap } from './components/WorldMap';
-import { characterById, greeting, phrase, type Mood } from './core/characters';
-import { playChest, playCorrect, playTryAgain } from './core/feedback';
+import { BOSS_LIVES, answerBoss, startBoss, type BossFight } from './core/boss';
+import { bossPhrase, characterById, greeting, phrase, type Mood } from './core/characters';
+import { playChest, playCorrect, playFanfare, playTryAgain } from './core/feedback';
 import { lockState, openChest } from './core/rewards';
 import { loadSave, newSave, storeSave } from './core/save';
 import { SESSION_LENGTH, advance, answer, isFinished, startSession, type Session } from './core/session';
-import type { Question, SaveData, WorldItem } from './core/types';
+import type { Question, SaveData, TopicModule, WorldBoss, WorldItem, WorldLocation } from './core/types';
 import { NumberInput } from './exercises/NumberInput';
 import { multiplication } from './topics/multiplication';
 import { locationById, locations } from './world/locations';
 
-type Screen = 'home' | 'play' | 'finish' | 'map' | 'parent';
+type Screen = 'home' | 'play' | 'finish' | 'map' | 'parent' | 'boss';
 type Feedback = 'none' | 'correct' | 'try-again' | 'reveal';
 type Chest = { state: 'closed' } | { state: 'open'; item: WorldItem | null; coins: number };
 
@@ -32,6 +36,11 @@ export default function App() {
   const [chest, setChest] = useState<Chest>({ state: 'closed' });
   // Всплывающее «+2» или «−4» у счётчика монет; id перезапускает анимацию.
   const [coinDelta, setCoinDelta] = useState<{ id: number; value: number } | null>(null);
+  // Бой с боссом. Вопрос на экране меняется с задержкой, а здоровье и жизни — сразу.
+  const [fight, setFight] = useState<BossFight | null>(null);
+  const [bossQuestion, setBossQuestion] = useState<Question | null>(null);
+  const [bossEnd, setBossEnd] = useState<'won' | 'lost' | null>(null);
+  const [celebration, setCelebration] = useState<WorldLocation | null>(null);
   const holdTimer = useRef<number | undefined>(undefined);
 
   const location = locationById(save.location);
@@ -66,10 +75,14 @@ export default function App() {
 
   const changeFromMap = (next: SaveData) => {
     setSave(next);
-    if (next.location !== save.location) {
-      setSpeech(greeting(characterById(locationById(next.location).characterId)));
-      setMood('happy');
-      setScreen('home');
+    if (next.location === save.location) return;
+    const place = locationById(next.location);
+    setSpeech(greeting(characterById(place.characterId)));
+    setMood('happy');
+    setScreen('home');
+    if (next.unlocked.length > save.unlocked.length) {
+      setCelebration(place);
+      playFanfare();
     }
   };
 
@@ -122,6 +135,54 @@ export default function App() {
     playChest();
   };
 
+  const startFight = (boss: WorldBoss) => {
+    const next = startBoss(topic, boss);
+    setFight(next);
+    setBossQuestion(next.question);
+    setBossEnd(null);
+    setInput('');
+    setFeedback('none');
+    setSpeech(bossPhrase('start'));
+    setScreen('boss');
+  };
+
+  const submitBoss = () => {
+    if (!fight || feedback === 'correct' || feedback === 'reveal') return;
+    const result = answerBoss(fight, save, input);
+    setFight(result.fight);
+    setSave(result.save);
+    if (result.outcome === 'hit' || result.outcome === 'won') {
+      playCorrect();
+      setFeedback('correct');
+      setSpeech(bossPhrase(result.outcome === 'won' ? 'won' : 'hit'));
+      window.setTimeout(() => {
+        if (result.outcome === 'won') {
+          playFanfare();
+          setBossEnd('won');
+        } else {
+          setBossQuestion(result.fight.question);
+          setInput('');
+          setFeedback('none');
+        }
+      }, NEXT_DELAY_MS);
+    } else {
+      playTryAgain();
+      setFeedback('reveal');
+      setSpeech(bossPhrase(result.outcome === 'lost' ? 'lost' : 'miss'));
+    }
+  };
+
+  const afterBossMiss = () => {
+    if (!fight) return;
+    if (fight.lives === 0) {
+      setBossEnd('lost');
+      return;
+    }
+    setBossQuestion(fight.question);
+    setInput('');
+    setFeedback('none');
+  };
+
   // Вход для родителя — долгое нажатие, чтобы Катя не попадала туда случайно.
   const holdStart = () => {
     holdTimer.current = window.setTimeout(() => setScreen('parent'), PARENT_HOLD_MS);
@@ -148,6 +209,15 @@ export default function App() {
             </span>
           )}
         </div>
+        {screen === 'boss' && fight && !bossEnd && (
+          <div className="lives" aria-label={`Жизни: ${fight.lives} из ${BOSS_LIVES}`}>
+            {Array.from({ length: BOSS_LIVES }, (_, i) => (
+              <span key={i} className={i < fight.lives ? 'life' : 'life lost'}>
+                ❤️
+              </span>
+            ))}
+          </div>
+        )}
         {screen === 'play' && session && (
           <div className="dots" aria-label={`Вопрос ${session.index + 1} из ${SESSION_LENGTH}`}>
             {Array.from({ length: SESSION_LENGTH }, (_, i) => (
@@ -173,7 +243,11 @@ export default function App() {
         <div className="stage">
           <div className="hero">
             <div className="bubble">{speech}</div>
-            <Slime character={character} mood={mood} />
+            {screen === 'boss' && fight ? (
+              <BossView boss={fight.boss} hp={fight.hp} maxHp={fight.maxHp} />
+            ) : (
+              <Slime character={character} mood={mood} />
+            )}
           </div>
 
           {screen === 'home' && (
@@ -188,7 +262,59 @@ export default function App() {
               <button className="btn btn-secondary" onClick={() => setScreen('map')}>
                 🗺️ Карта мира
               </button>
+              <BossList bosses={location.bosses} save={save} topic={topic} onFight={startFight} />
               <NextGoal save={save} />
+            </div>
+          )}
+
+          {screen === 'boss' && fight && bossQuestion && !bossEnd && (
+            <div className="panel">
+              <QuestionCard question={bossQuestion} input={input} feedback={feedback} />
+              {feedback === 'reveal' ? (
+                <button className="btn btn-big" onClick={afterBossMiss}>
+                  Дальше
+                </button>
+              ) : (
+                <Exercise
+                  question={bossQuestion}
+                  value={input}
+                  onChange={setInput}
+                  onSubmit={submitBoss}
+                  disabled={feedback === 'correct'}
+                />
+              )}
+            </div>
+          )}
+
+          {screen === 'boss' && fight && bossEnd === 'won' && (
+            <div className="panel center">
+              <Confetti />
+              <h1 className="title">Победа!</h1>
+              <div className="prize">
+                <span className="prize-icon">🏆</span>
+                <span>
+                  Трофей: {fight.boss.icon} {fight.boss.name}
+                </span>
+              </div>
+              <button className="btn btn-big" onClick={goHome}>
+                Дальше
+              </button>
+            </div>
+          )}
+
+          {screen === 'boss' && fight && bossEnd === 'lost' && (
+            <div className="panel center">
+              <h1 className="title">Босс устоял</h1>
+              <p className="result">Повтори столбик и попробуй ещё раз:</p>
+              <ColumnTable topic={topic} groupId={fight.boss.group} />
+              <div className="row">
+                <button className="btn btn-big" onClick={() => startFight(fight.boss)}>
+                  Ещё раз
+                </button>
+                <button className="btn btn-secondary" onClick={goHome}>
+                  Назад
+                </button>
+              </div>
             </div>
           )}
 
@@ -246,6 +372,8 @@ export default function App() {
           )}
         </div>
       )}
+
+      {celebration && <Celebration location={celebration} onClose={() => setCelebration(null)} />}
     </div>
   );
 }
@@ -269,6 +397,52 @@ function NextGoal({ save }: { save: SaveData }) {
     <p className="goal">
       Ещё <span className="coin">●</span> {next.price - save.coins} — и откроется {next.icon} {next.name}
     </p>
+  );
+}
+
+/** Боссы текущей локации: с кем можно сразиться и кто уже побеждён. */
+function BossList(props: {
+  bosses: WorldBoss[];
+  save: SaveData;
+  topic: TopicModule;
+  onFight: (boss: WorldBoss) => void;
+}) {
+  const groups = props.topic.groups();
+  return (
+    <div className="boss-list">
+      {props.bosses.map((boss) => {
+        const beaten = props.save.bosses.includes(boss.id);
+        return (
+          <button key={boss.id} className={beaten ? 'boss-btn beaten' : 'boss-btn'} onClick={() => props.onFight(boss)}>
+            <span className="boss-btn-icon">{boss.icon}</span>
+            <span className="boss-btn-text">
+              <span>
+                {beaten ? '🏆' : '⚔️'} {boss.name}
+              </span>
+              <small>{groups.find((g) => g.id === boss.group)?.title}</small>
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Весь столбик с ответами, чтобы повторить его после проигрыша боссу. */
+function ColumnTable({ topic, groupId }: { topic: TopicModule; groupId: string }) {
+  const group = topic.groups().find((g) => g.id === groupId);
+  if (!group) return null;
+  return (
+    <div className="column-table">
+      {group.items.map((id) => {
+        const q = topic.question(id);
+        return (
+          <span key={id}>
+            {q.prompt} = <strong>{q.answer}</strong>
+          </span>
+        );
+      })}
+    </div>
   );
 }
 

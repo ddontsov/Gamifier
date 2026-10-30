@@ -40,6 +40,17 @@ export const multiplication: TopicModule = {
     return ids;
   },
 
+  /** Столбики: «на 7» — это 7 × 2, 7 × 3, … 7 × 9. */
+  groups() {
+    const groups = [];
+    for (let a = MIN; a <= MAX; a++) {
+      const items = [];
+      for (let b = MIN; b <= MAX; b++) items.push(`${a}x${b}`);
+      groups.push({ id: `x${a}`, title: `Столбик на ${a}`, items });
+    }
+    return groups;
+  },
+
   question(itemId: string): Question {
     const [a, b] = parse(itemId);
     return {

@@ -130,6 +130,8 @@ export function ParentScreen({ save, topic, onReplace, onClose }: Props) {
           </button>
         )}
       </section>
+
+      <p className="muted version">Версия {__APP_BUILD__}</p>
     </div>
   );
 }
